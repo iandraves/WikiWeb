@@ -1,6 +1,8 @@
 import wikipedia
 import concurrent.futures
 
+not_done = True
+
 def main():
 	# Searching for first page
 	try:
@@ -29,47 +31,55 @@ def main():
 	print("Crawling wikis...")
 	futures = []
 	with concurrent.futures.ThreadPoolExecutor() as executor:
-		first_search_path = executor.submit(search, first_page_title, second_page_title, first_page_wikis, 1, True)
-		second_search_path = executor.submit(search, second_page_title, first_page_title, second_page_wikis, 1, False)
+		first_search_path = executor.submit(search, first_page_title, second_page_title, first_page_wikis, 1)
+		second_search_path = executor.submit(search, second_page_title, first_page_title, second_page_wikis, 1)
 
 		futures.append(first_search_path)
 		futures.append(second_search_path)
 
-	# Waiting for match and outputting result
-	for future in concurrent.futures.as_completed(futures):
-		if future.result() == 1:
-			print("There is 1 degree of separation between '" + first_page_title + "' and " + "'" + second_page_title + "'")
+		# Waiting for match and outputting result
+		for future in concurrent.futures.as_completed(futures):
+			global not_done
+			not_done = False
+			if future.result() != None:
+				if future.result() == 1:
+					print("There is 1 degree of separation between '" + first_page_title + "' and " + "'" + second_page_title + "'")
+				else:
+					print("There are " + str(future.result()) + " degrees of separation between '" + first_page_title + "' and " + "'" + second_page_title + "'")
+		
+def search(start_page_title, end_page_title, wikis, degrees):
+	while not_done:
+		# Checking current degree for match
+		if end_page_title in wikis:
+			return degrees
 		else:
-			print("There are " + str(future.result()) + " degrees of separation between '" + first_page_title + "' and " + "'" + second_page_title + "'")
-		break
+			degrees += 1
 
-def search(start_page_title, end_page_title, wikis, degrees, primary_thread):
-	# Checking current degree for match
-	if end_page_title in wikis:
-		return degrees
-	else:
-		degrees += 1
+		# Checking next degree & creating subsequent one
+		new_wikis = []
+		for wiki_page in wikis:
+			if not not_done:
+				return None
+			else:
+				print("Checking '" + wiki_page + "' on degree level " + str(degrees), "(" + start_page_title + " --> " + end_page_title + ")")
 
-	# Checking next degree & creating subsequent one
-	new_wikis = []
-	for wiki_page in wikis:
-		print("Checking '" + wiki_page + "' on degree level " + str(degrees), "(" + start_page_title + " --> " + end_page_title + ")")
+				try:
+					sub_wikis = wikipedia.page(title=wiki_page, pageid=None, auto_suggest=True, redirect=True, preload=False).links
+					
+					if end_page_title in sub_wikis:
+						return degrees
+					
+					new_wikis.extend(sub_wikis)
+				except:
+					continue
+		
+		# Removing duplicates
+		new_wikis = list(dict.fromkeys(new_wikis))
 
-		try:
-			sub_wikis = wikipedia.page(title=wiki_page, pageid=None, auto_suggest=True, redirect=True, preload=False).links
-			
-			if end_page_title in sub_wikis:
-				return degrees
-			
-			new_wikis.extend(sub_wikis)
-		except:
-			continue
+		# Searching new list
+		search(start_page_title, end_page_title, new_wikis, degrees)
 	
-	# Removing duplicates
-	new_wikis = list(dict.fromkeys(new_wikis))
-
-	# Searching new list
-	search(start_page_title, end_page_title, new_wikis, degrees, primary_thread)
+	return None
 
 if __name__ == '__main__':
 	main()
