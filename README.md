@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
+  <a href="https://github.com/iandraves/WikiWeb">
     <img src="img/web.png" alt="Logo" width="80" height="80">
   </a>
 
@@ -11,7 +11,7 @@
     A real-time degrees of separation calculator for Wikipedia pages :spider_web: 
     <br />
     <br />
-    <a href="https://replit.com/join/irmdocxcgz-iand">LIVE DEMO!</a>
+    <a href="https://replit.com/@iand/WikiWeb">LIVE DEMO!</a>
     ·
     <a href="https://github.com/iandraves/WikiWeb/issues">Report Bug</a>
     ·
@@ -84,6 +84,5 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
 [product-screenshot]: img/screenshot.png
